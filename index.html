@@ -4,16 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iPAS 資安刷題模擬考系統</title>
-    <!-- 引入 Google 字體 -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PapaParse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <style>
         body { font-family: 'Noto Sans TC', sans-serif; }
         .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-100 to-blue-50 text-slate-800 min-h-screen flex items-center justify-center p-4 md:p-6">
@@ -36,6 +32,12 @@
                 進入系統
             </button>
         </form>
+
+        <!-- 純前端訪客計數器 (API) -->
+        <div class="mt-8 text-center flex flex-col items-center justify-center">
+            <p class="text-xs text-slate-400 mb-2">系統累計造訪人次</p>
+            <img src="https://api.visitorbadge.io/api/visitors?path=ipas-quiz-system-2026&labelColor=%23475569&countColor=%232563eb" alt="Visitor Badge">
+        </div>
     </div>
 
     <!-- ================= 2. 儀表板 (選擇題庫) ================= -->
@@ -49,7 +51,6 @@
         </div>
 
         <div class="grid md:grid-cols-2 gap-6">
-            <!-- 管理題庫按鈕 -->
             <button onclick="startExam('management')" class="text-left glass-panel p-8 rounded-3xl shadow-lg hover:shadow-xl border border-white hover:border-blue-300 transition-all group">
                 <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -58,7 +59,6 @@
                 <p class="text-slate-500 text-sm">涵蓋存取控制、風險評鑑、法規遵循與資產管理等管理層面題庫。</p>
             </button>
 
-            <!-- 技術題庫按鈕 -->
             <button onclick="startExam('tech')" class="text-left glass-panel p-8 rounded-3xl shadow-lg hover:shadow-xl border border-white hover:border-blue-300 transition-all group">
                 <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
@@ -68,7 +68,6 @@
             </button>
         </div>
         
-        <!-- 載入中動畫 (隱藏) -->
         <div id="loading" class="hidden flex-col items-center justify-center mt-12">
             <svg class="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <p class="text-slate-500 font-medium">從雲端題庫抽取題目中...</p>
@@ -76,10 +75,16 @@
     </div>
 
     <!-- ================= 3. 測驗進行中介面 ================= -->
-    <div id="quiz-screen" class="hidden w-full max-w-3xl glass-panel p-6 md:p-10 rounded-3xl shadow-2xl border border-white">
+    <div id="quiz-screen" class="hidden w-full max-w-3xl glass-panel p-6 md:p-10 rounded-3xl shadow-2xl border border-white relative">
         
+        <!-- 新增：中途回首頁按鈕 -->
+        <button onclick="backToDashboard()" class="absolute top-6 right-6 flex items-center gap-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-lg transition-colors text-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            回首頁
+        </button>
+
         <!-- 頂部狀態列 -->
-        <div class="flex justify-between items-end mb-6">
+        <div class="flex justify-between items-end mb-6 mt-8">
             <div>
                 <span id="quiz-tag" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-sm font-bold tracking-wide">模擬測驗</span>
                 <div class="text-2xl font-bold text-slate-800 mt-2">第 <span id="current-q-num" class="text-blue-600 text-3xl">1</span> / 30 題</div>
@@ -90,33 +95,34 @@
             </div>
         </div>
 
-        <!-- 進度條 -->
         <div class="w-full bg-slate-100 rounded-full h-2.5 mb-8 overflow-hidden">
             <div id="progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-300" style="width: 3.33%"></div>
         </div>
         
-        <!-- 題目內容 -->
         <h2 id="question-text" class="text-xl md:text-2xl font-bold mb-8 leading-relaxed text-slate-800">題目載入中...</h2>
         
-        <!-- 選項區塊 -->
         <div id="options-container" class="space-y-4 mb-10">
             <!-- 選項按鈕由 JS 產生 -->
         </div>
         
-        <!-- 底部導覽 -->
         <div class="flex justify-between items-center pt-6 border-t border-slate-100">
             <button id="prev-btn" class="px-6 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 disabled:opacity-40 transition-colors">上一題</button>
-            
             <button id="next-btn" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-colors">下一題</button>
-            
             <button id="submit-btn" class="hidden px-8 py-3 bg-rose-500 text-white font-bold rounded-xl hover:bg-rose-600 shadow-lg shadow-rose-200 transition-colors">交卷</button>
         </div>
     </div>
 
     <!-- ================= 4. 測驗結果與錯題檢討介面 ================= -->
     <div id="result-screen" class="hidden w-full max-w-4xl">
-        <div class="glass-panel p-8 md:p-12 rounded-3xl shadow-2xl border border-white mb-8 text-center">
-            <h2 class="text-3xl font-bold text-slate-800 mb-2">測驗完成！</h2>
+        <div class="glass-panel p-8 md:p-12 rounded-3xl shadow-2xl border border-white mb-8 text-center relative">
+            
+            <!-- 新增：結算畫面的回首頁按鈕 -->
+            <button onclick="backToDashboard()" class="absolute top-6 right-6 flex items-center gap-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-lg transition-colors text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                回首頁
+            </button>
+
+            <h2 class="text-3xl font-bold text-slate-800 mb-2 mt-4">測驗完成！</h2>
             <p class="text-slate-500 mb-8">以下是您的模擬考成績</p>
             
             <div class="inline-flex items-center justify-center w-40 h-40 rounded-full border-8 border-blue-500 bg-white shadow-inner mb-6">
@@ -128,17 +134,14 @@
                 <div>答對：<span id="correct-count" class="text-green-600 font-bold text-xl">30</span></div>
                 <div>答錯：<span id="wrong-count" class="text-rose-600 font-bold text-xl">0</span></div>
             </div>
-
-            <button onclick="backToDashboard()" class="px-8 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition-all shadow-lg shadow-slate-300">回首頁選擇其他題庫</button>
         </div>
 
-        <!-- 錯題列表區塊 -->
         <div id="review-section" class="hidden">
             <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                 <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 錯題檢討與解析
             </h3>
-            <div id="wrong-questions-container" class="space-y-6">
+            <div id="wrong-questions-container" class="space-y-6 pb-12">
                 <!-- 錯題內容由 JS 產生 -->
             </div>
         </div>
@@ -146,26 +149,23 @@
 
     <!-- ================= 系統邏輯 (JavaScript) ================= -->
     <script>
-        // 題庫網址
         const sheets = {
             management: "https://docs.google.com/spreadsheets/d/12HopkgGQzqeguPXG7ksF9_9PLfQ6VyVLIU5tfSyfybA/export?format=csv",
             tech: "https://docs.google.com/spreadsheets/d/1bMB1AVmVJed4zE0OyjMwJyD3RjwP4hSWxhqU99ndbPY/export?format=csv"
         };
         
-        let quizQuestions = [];   // 本次測驗的 30 題
-        let userAnswers = [];     // 記錄使用者的選擇 (A, B, C, D)
+        let quizQuestions = [];   
+        let userAnswers = [];     
         let currentIndex = 0;
         let timerInterval;
-        let timeRemaining = 1800; // 30分鐘 = 1800秒
+        let timeRemaining = 1800; 
 
-        // DOM 元素
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
         const loadingSpinner = document.getElementById('loading');
 
-        // === 登入管理 ===
         if (localStorage.getItem('isLoggedIn') === 'true') {
             showDashboard();
         }
@@ -195,7 +195,13 @@
             document.getElementById('welcome-text').textContent = `準備好了嗎，${localStorage.getItem('username')}？`;
         }
 
-        // === 開始測驗 ===
+        function backToDashboard() {
+            // 如果是在測驗中途按回首頁，需要清除計時器
+            if(timerInterval) clearInterval(timerInterval);
+            showDashboard();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function startExam(type) {
             loadingSpinner.classList.remove('hidden');
             document.querySelectorAll('#dashboard-screen button').forEach(b => b.disabled = true);
@@ -204,17 +210,13 @@
                 download: true,
                 header: true,
                 complete: function(results) {
-                    // 過濾掉空白題目
                     let allQuestions = results.data.filter(q => q["產出的題目"] && q["產出的題目"].trim() !== "");
-                    
-                    // 隨機打亂並抽取 30 題
                     quizQuestions = shuffleArray(allQuestions).slice(0, 30);
                     userAnswers = new Array(quizQuestions.length).fill(null);
                     currentIndex = 0;
                     
                     document.getElementById('quiz-tag').textContent = type === 'management' ? '管理題庫' : '技術題庫';
                     
-                    // 切換畫面
                     dashboardScreen.classList.add('hidden');
                     quizScreen.classList.remove('hidden');
                     document.querySelectorAll('#dashboard-screen button').forEach(b => b.disabled = false);
@@ -225,7 +227,6 @@
             });
         }
 
-        // 陣列洗牌函數 (Fisher-Yates Shuffle)
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -234,7 +235,6 @@
             return array;
         }
 
-        // === 計時器 ===
         function startTimer() {
             clearInterval(timerInterval);
             timeRemaining = 1800; 
@@ -244,7 +244,6 @@
                 timeRemaining--;
                 updateTimeDisplay();
                 
-                // 剩餘 5 分鐘時字體變紅
                 const timeDisplay = document.getElementById('time-display');
                 if(timeRemaining <= 300 && !timeDisplay.classList.contains('text-rose-600')) {
                     timeDisplay.classList.replace('text-slate-700', 'text-rose-600');
@@ -266,7 +265,6 @@
             document.getElementById('time-display').textContent = `${m}:${s}`;
         }
 
-        // === 題目渲染與操作 ===
         function renderQuestion() {
             const q = quizQuestions[currentIndex];
             const total = quizQuestions.length;
@@ -291,7 +289,6 @@
                 const isSelected = userAnswers[currentIndex] === opt.key;
                 const btn = document.createElement('button');
                 
-                // 基本樣式 + 如果被選中則套用藍色強調樣式
                 btn.className = `w-full flex items-start text-left p-4 rounded-xl border-2 transition-all duration-200 ${
                     isSelected 
                     ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm' 
@@ -307,12 +304,11 @@
                 
                 btn.onclick = () => {
                     userAnswers[currentIndex] = opt.key;
-                    renderQuestion(); // 重新渲染以更新選取狀態
+                    renderQuestion(); 
                 };
                 optionsContainer.appendChild(btn);
             });
 
-            // 按鈕顯示邏輯
             document.getElementById('prev-btn').disabled = currentIndex === 0;
             
             if (currentIndex === total - 1) {
@@ -338,7 +334,6 @@
             }
         };
 
-        // === 結算與錯題檢討 ===
         function submitQuiz() {
             clearInterval(timerInterval);
             let correctCount = 0;
@@ -350,7 +345,6 @@
                 if (userAns === q["正確答案"]) {
                     correctCount++;
                 } else {
-                    // 記錄錯題
                     let userAnsText = userAns ? q[`選項${userAns}`] : '未作答';
                     let correctAnsText = q[`選項${q["正確答案"]}`] || '';
                     
@@ -382,11 +376,9 @@
                 }
             });
 
-            // 計算分數 (一題 100/30 分)
             let score = Math.round((correctCount / quizQuestions.length) * 100);
             let wrongCount = quizQuestions.length - correctCount;
 
-            // 渲染成績畫面
             document.getElementById('score-display').textContent = score;
             document.getElementById('score-display').className = `text-5xl font-bold ${score >= 70 ? 'text-green-500' : 'text-rose-500'}`;
             document.getElementById('correct-count').textContent = correctCount;
@@ -406,20 +398,12 @@
                     </div>`;
             }
 
-            // 切換畫面
             quizScreen.classList.add('hidden');
             resultScreen.classList.remove('hidden');
             
-            // 重置計時器顯示顏色
             const timeDisplay = document.getElementById('time-display');
             timeDisplay.classList.remove('text-rose-600', 'bg-rose-50', 'border-rose-200');
             timeDisplay.classList.add('text-slate-700', 'bg-slate-100', 'border-slate-200');
-        }
-
-        function backToDashboard() {
-            showDashboard();
-            // 讓頁面滾動回最上方
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
