@@ -14,14 +14,53 @@
 </head>
 <body class="bg-gradient-to-br from-slate-100 to-blue-50 text-slate-800 min-h-screen flex items-center justify-center p-4 md:p-6">
 
+    <!-- ================= 0. 簡介介面 (Onboarding) ================= -->
+    <div id="intro-screen" class="w-full max-w-md glass-panel p-8 rounded-3xl shadow-2xl border border-white">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 text-indigo-600 mb-4 shadow-inner">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            </div>
+            <h1 class="text-3xl font-bold text-slate-800 mb-3">iPAS 刷題神器</h1>
+            <p class="text-slate-500 font-medium">為考取資安工程師量身打造的模擬系統</p>
+        </div>
+
+        <div class="space-y-4 mb-8">
+            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="text-2xl mt-1">⏱️</span>
+                <div>
+                    <h3 class="font-bold text-slate-700 text-sm md:text-base">真實模擬測驗</h3>
+                    <p class="text-slate-500 text-xs md:text-sm mt-1">雲端題庫隨機抽取 30 題，並啟動 30 分鐘倒數計時，還原考場高壓環境。</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="text-2xl mt-1">💡</span>
+                <div>
+                    <h3 class="font-bold text-slate-700 text-sm md:text-base">錯題解析檢討</h3>
+                    <p class="text-slate-500 text-xs md:text-sm mt-1">交卷後自動結算成績，針對答錯的題目比對正確答案並提供詳細解析。</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <span class="text-2xl mt-1">📱</span>
+                <div>
+                    <h3 class="font-bold text-slate-700 text-sm md:text-base">手機隨手可測</h3>
+                    <p class="text-slate-500 text-xs md:text-sm mt-1">完全響應式介面設計，等公車、搭捷運都能隨時拿起手機隨手刷題。</p>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="showLogin()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-indigo-200 transition-all transform hover:-translate-y-0.5">
+            開始使用
+        </button>
+    </div>
+
     <!-- ================= 1. 登入介面 ================= -->
-    <div id="login-screen" class="w-full max-w-md glass-panel p-8 rounded-3xl shadow-2xl border border-white">
+    <div id="login-screen" class="hidden w-full max-w-md glass-panel p-8 rounded-3xl shadow-2xl border border-white">
         <div class="text-center mb-8">
             <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-4">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
             </div>
-            <h1 class="text-3xl font-bold text-slate-800 mb-2">iPAS 模擬考系統</h1>
-            <p class="text-slate-500">請登入以開始測驗</p>
+            <h1 class="text-3xl font-bold text-slate-800 mb-2">訪客登入</h1>
+            <p class="text-slate-500">請輸入姓名或學號以記錄成績</p>
         </div>
         
         <form id="login-form" class="space-y-5">
@@ -33,7 +72,7 @@
             </button>
         </form>
 
-        <!-- 純前端訪客計數器 (API) -->
+        <!-- 純前端訪客計數器 -->
         <div class="mt-8 text-center flex flex-col items-center justify-center">
             <p class="text-xs text-slate-400 mb-2">系統累計造訪人次</p>
             <img src="https://api.visitorbadge.io/api/visitors?path=ipas-quiz-system-2026&labelColor=%23475569&countColor=%232563eb" alt="Visitor Badge">
@@ -76,14 +115,11 @@
 
     <!-- ================= 3. 測驗進行中介面 ================= -->
     <div id="quiz-screen" class="hidden w-full max-w-3xl glass-panel p-6 md:p-10 rounded-3xl shadow-2xl border border-white relative">
-        
-        <!-- 新增：中途回首頁按鈕 -->
         <button onclick="backToDashboard()" class="absolute top-6 right-6 flex items-center gap-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-lg transition-colors text-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
             回首頁
         </button>
 
-        <!-- 頂部狀態列 -->
         <div class="flex justify-between items-end mb-6 mt-8">
             <div>
                 <span id="quiz-tag" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-md text-sm font-bold tracking-wide">模擬測驗</span>
@@ -115,8 +151,6 @@
     <!-- ================= 4. 測驗結果與錯題檢討介面 ================= -->
     <div id="result-screen" class="hidden w-full max-w-4xl">
         <div class="glass-panel p-8 md:p-12 rounded-3xl shadow-2xl border border-white mb-8 text-center relative">
-            
-            <!-- 新增：結算畫面的回首頁按鈕 -->
             <button onclick="backToDashboard()" class="absolute top-6 right-6 flex items-center gap-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-lg transition-colors text-sm">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                 回首頁
@@ -147,7 +181,7 @@
         </div>
     </div>
 
-    <!-- ================= 系統邏輯 (JavaScript) ================= -->
+    <!-- ================= 系統邏輯 ================= -->
     <script>
         const sheets = {
             management: "https://docs.google.com/spreadsheets/d/12HopkgGQzqeguPXG7ksF9_9PLfQ6VyVLIU5tfSyfybA/export?format=csv",
@@ -160,14 +194,23 @@
         let timerInterval;
         let timeRemaining = 1800; 
 
+        const introScreen = document.getElementById('intro-screen');
         const loginScreen = document.getElementById('login-screen');
         const dashboardScreen = document.getElementById('dashboard-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const resultScreen = document.getElementById('result-screen');
         const loadingSpinner = document.getElementById('loading');
 
+        // 判斷一開始要顯示哪一頁
         if (localStorage.getItem('isLoggedIn') === 'true') {
+            introScreen.classList.add('hidden');
             showDashboard();
+        }
+
+        // 從簡介進入登入畫面
+        function showLogin() {
+            introScreen.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
         }
 
         document.getElementById('login-form').addEventListener('submit', (e) => {
@@ -182,7 +225,7 @@
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('username');
             dashboardScreen.classList.add('hidden');
-            loginScreen.classList.remove('hidden');
+            introScreen.classList.remove('hidden'); // 登出後回到簡介
             document.getElementById('username').value = '';
         }
 
@@ -196,7 +239,6 @@
         }
 
         function backToDashboard() {
-            // 如果是在測驗中途按回首頁，需要清除計時器
             if(timerInterval) clearInterval(timerInterval);
             showDashboard();
             window.scrollTo({ top: 0, behavior: 'smooth' });
